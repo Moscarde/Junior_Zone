@@ -1,4 +1,6 @@
 import requests
+from pprint import pprint
+
 
 class TelegramBot:
     def __init__(self, token):
@@ -8,35 +10,46 @@ class TelegramBot:
     def get_updates(self, offset=None, timeout=30):
         method = "getUpdates"
         params = {"timeout": timeout, "offset": offset}
-        resp = requests.get(self.api_url + method, params)
-        result = resp.json()["result"]
-        return result
+        response = requests.get(self.api_url + method, params)
+        return response.json()["result"]
 
     def send_message(self, chat_id, text):
         method = "sendMessage"
-        params = {"chat_id": chat_id, "text": text, "parse_mode": "MarkdownV2"}
-        resp = requests.post(self.api_url + method, params)
-        print(resp)
+        params = {
+            "chat_id": chat_id,
+            "text": text,
+            "parse_mode": "MarkdownV2",
+            "disable_web_page_preview": True,
+        }
+        response = requests.post(self.api_url + method, params)
+        self.print_response_status(response)
 
     def send_photo(self, chat_id, file_opened):
         method = "sendPhoto"
         params = {"chat_id": chat_id}
         files = {"photo": file_opened}
-        resp = requests.post(self.api_url + method, params, files=files)
-        print(resp)
+        response = requests.post(self.api_url + method, params, files=files)
+        self.print_response_status(response)
 
-    def send_message_main_group(self, text):
-        chat_id = "-1001984744184"
-        self.send_message(chat_id, text)
+    def print_response_status(self, response):
+        if response.json()["ok"]:
+            print(
+                f"SUCCESS - Message sent to \"{response.json()['result']['chat']['title']}\""
+            )
+        else:
+            print(f"FAIL - Error code: {response.json()['error_code']}")
+            print(f"Description: {response.json()['description']}")
+
 
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
     from datetime import datetime
     import os
+
     load_dotenv()
     token = os.environ["TOKEN"]
 
     jj = TelegramBot(token)
-    jj.send_message_main_group(f"teste")
-    jj.send_photo("-1001984744184", open('img_test.jpg', 'rb'))
+    jj.send_message_test_group(f"teste")
+    # jj.send_photo("-4059537333", open("pictures/img_test.jpg", "rb"))
