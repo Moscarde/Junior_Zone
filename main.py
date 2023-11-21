@@ -31,6 +31,9 @@ def main():
         data_handler = DataHandler(date)
         text = data_handler.telegram_text
 
+        option = int(input(">> >> EXPORT DATA TO EXEL? [1] YES [2] NO\n"))
+        if option == 1:
+            data_handler.export_to_excel()
 
     elif option == 2:
         date = input(">> DATE (YYYY-MM-DD): ")
@@ -43,7 +46,6 @@ def main():
     elif option == 4:
         file_name = input(">> FILE NAME IN PICTURES FOLDER: ")
         text = open(f"pictures/{file_name}", "rb")
-    
 
     else:
         print("INVALID OPTION")
@@ -72,7 +74,6 @@ def main():
     option = int(input(" [1] YES | [2] NO\n"))
     if option == 1:
         main()
-
 
 
 if __name__ == "__main__":

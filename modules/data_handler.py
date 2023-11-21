@@ -27,19 +27,19 @@ class DataHandler:
         ]
         df_jr = df_jr.sort_values(by="state")
 
-        df_jr_remote = df_jr[(df_jr["is_remote_work"] == True)]
-        df_jr_hybrids = df_jr[(df_jr["workplace_type"] == "hybrid")]
+        self.df_jr_remote = df_jr[(df_jr["is_remote_work"] == True)]
+        self.df_jr_hybrids = df_jr[(df_jr["workplace_type"] == "hybrid")]
 
         text = self.contruct_text(
             [
                 {
                     "title_section": "🌐 Vagas Jr - Remotas 🌐 ",
-                    "data": df_jr_remote,
+                    "data": self.df_jr_remote,
                     "type": "remote ",
                 },
                 {
                     "title_section": "🌍 Vagas Jr - Híbridas 🌍",
-                    "data": df_jr_hybrids,
+                    "data": self.df_jr_hybrids,
                     "type": "hybrid",
                 },
             ]
@@ -62,7 +62,7 @@ class DataHandler:
         text = (
             f"📅 Vagas atualizadas dia: *{raw_date.strftime('%d/%m/%Y')}*\n"
             f"Período: *{'Manhã 🌅' if raw_date.hour < 12 else 'Tarde 🌇'}*\n\n "
-            )
+        )
 
         for dict in list_of_dict:
             if len(dict["data"]) == 0:
@@ -114,7 +114,37 @@ class DataHandler:
             .replace("<", "\<")
         )
 
+    def export_to_excel(self):
+        dfs = [self.df_jr_remote, self.df_jr_hybrids]
+        df_excel = pd.concat(dfs, ignore_index=True)[
+            [
+                "published_date",
+                "title",
+                "career_page_name",
+                "workplace_type",
+                "job_url",
+                "city",
+                "state",
+            ]
+        ]
+        df_excel.columns = [
+            "Data",
+            "Vaga",
+            "Nome da Empresa",
+            "Tipo de Trabalho",
+            "URL",
+            "Cidade",
+            "Estado",
+        ]
+        date = datetime.now().date()
+        df_excel.to_excel(f"data/{date}.xlsx", index=False)
+
+        with pd.ExcelWriter("data/jobs.xlsx", engine="openpyxl", mode="a") as writer:
+            df_excel.to_excel(writer, sheet_name=f"{date}", index=False)
+
+        return df_excel
+
 
 if __name__ == "__main__":
-    data = DataHandler("2023-11-20")
-    pprint(data.telegram_text)
+    data = DataHandler("data/2023-11-21")
+    pprint(data)
