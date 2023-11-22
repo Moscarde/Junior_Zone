@@ -13,18 +13,21 @@ class TelegramBot:
         response = requests.get(self.api_url + method, params)
         return response.json()["result"]
 
-    def send_message(self, chat_id, text):
-        method = "sendMessage"
-        params = {
-            "chat_id": chat_id,
-            "text": text,
-            "parse_mode": "MarkdownV2",
-            "disable_web_page_preview": True,
-        }
-        response = requests.post(self.api_url + method, params)
-        self.print_response_status(response)
+    def send_message(self, chat_id, content):
+        if type(content) == str:
+            content = [content]
+        for text in content:
+            method = "sendMessage"
+            params = {
+                "chat_id": chat_id,
+                "text": text,
+                "parse_mode": "MarkdownV2",
+                "disable_web_page_preview": True,
+            }
+            response = requests.post(self.api_url + method, params)
+            self.print_response_status(response)
 
-    def send_photo(self, chat_id, file_opened):
+    def send_image(self, chat_id, file_opened):
         method = "sendPhoto"
         params = {"chat_id": chat_id}
         files = {"photo": file_opened}
@@ -34,11 +37,11 @@ class TelegramBot:
     def print_response_status(self, response):
         if response.json()["ok"]:
             print(
-                f"SUCCESS - Message sent to \"{response.json()['result']['chat']['title']}\""
+                f"SUCCESS - Message sent to \"{response.json()['result']['chat']['title']}\"\n"
             )
         else:
             print(f"FAIL - Error code: {response.json()['error_code']}")
-            print(f"Description: {response.json()['description']}")
+            print(f"Description: {response.json()['description']}\n")
 
 
 
