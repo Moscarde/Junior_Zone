@@ -6,7 +6,7 @@ Junior Zone é um projeto para ajudar desenvolvedores e analistas iniciantes a e
 
 🖥️ Mensagem telegram | 🖥️ Planilha                            
 :----------: | :--------------:                                       
-<img src="pictures/screenshots/telegram_screenshot.jpg" /> | <img src="pictures/screenshots/planilha_screenshot.jpg" />   
+<img src="pictures/telegram_screenshot.jpg" /> | <img src="pictures/planilha_screenshot.jpg" />   
 
 ## ⚙️ Funcionalidades
 
