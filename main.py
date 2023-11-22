@@ -1,7 +1,7 @@
 from modules.gupy_scraper import GupyScraper
 from modules.data_handler import DataHandler
 from modules.data_handler import text_converter as telegram_text_converter
-from modules.data_handler import compile_to_excel
+from modules.data_handler import update_google_sheets_dataset
 from modules.telegram_bot import TelegramBot
 from datetime import datetime
 from dotenv import load_dotenv
@@ -77,7 +77,7 @@ def send_image():
 
 def update_sheets_dataset():
     try:
-        compile_to_excel()
+        update_google_sheets_dataset()
     except Exception as e:
         print(e)
     finally:
