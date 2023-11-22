@@ -1,124 +1,124 @@
 import pandas as pd
 from datetime import datetime
-import re
+import re, os
 from pprint import pprint
 
 
 class DataHandler:
     def __init__(self, date):
-        self.base_df = pd.read_csv(f"data/{date}.csv")
+        self.date = date
+        self.base_df = pd.read_csv(f"data/responses/{date}.csv")
         self.telegram_text = self.process_data(self.base_df)
 
-    def read_data(self, path):
-        df = pd.read_csv(path)
-        return df
-
     def process_data(self, df):
-        df["requirements"] = df["description"].apply(
-            self.extract_requirements_from_description
-        )
-
         df_jr = df[
             (~df["title"].str.upper().str.contains("PLENO"))
             & (~df["title"].str.upper().str.contains("SÊNIOR"))
             & (~df["title"].str.upper().str.contains("SENIOR"))
             & (~df["title"].str.upper().str.contains("SR"))
             & (~df["title"].str.upper().str.contains("PL"))
+            & (df["submitted"] == False)
         ]
         df_jr = df_jr.sort_values(by="state")
+
+        print("Total de vagas:", len(df))
+        print("Vagas filtradas:", len(df_jr))
 
         self.df_jr_remote = df_jr[(df_jr["is_remote_work"] == True)]
         self.df_jr_hybrids = df_jr[(df_jr["workplace_type"] == "hybrid")]
 
-        text = self.contruct_text(
-            [
-                {
-                    "title_section": "🌐 Vagas Jr - Remotas 🌐 ",
-                    "data": self.df_jr_remote,
-                    "type": "remote ",
-                },
-                {
-                    "title_section": "🌍 Vagas Jr - Híbridas 🌍",
-                    "data": self.df_jr_hybrids,
-                    "type": "hybrid",
-                },
-            ]
-        )
-        return text
+        if (len(self.df_jr_remote) == 0) and (len(self.df_jr_hybrids) == 0):
+            message = (
+                "🚫 Nenhuma vaga passou pelo filtro 🚫"
+                "\n"
+                "Aqui no grupo são postadas apenas vagas remotas e híbridas, porém a planilha também conta com as vagas sem esse filtro."
+                "[Clique aqui para conferir a planílha](https://github.com)"
+            )
+        else:
+            message = self.contruct_message(
+                [
+                    {
+                        "title_section": "🌐 Vagas Jr - Remotas 🌐 ",
+                        "data": self.df_jr_remote,
+                        "type": "remote ",
+                    },
+                    {
+                        "title_section": "🌍 Vagas Jr - Híbridas 🌍",
+                        "data": self.df_jr_hybrids,
+                        "type": "hybrid",
+                    },
+                ]
+            )
 
-    def extract_requirements_from_description(self, description):
-        padrao = re.compile(
-            r"Requisitos e qualificações(.*?)Informações adicionais", re.DOTALL
-        )
-        try:
-            requirements = padrao.search(description).group(1).split(";")
-            return requirements
-        except:
-            return ""
+        return message
 
-    def contruct_text(self, list_of_dict):
+    def contruct_message(self, list_of_dict):
         raw_date = datetime.now()
-
-        text = (
+        message = []
+        message.append(
             f"📅 Vagas atualizadas dia: *{raw_date.strftime('%d/%m/%Y')}*\n"
             f"Período: *{'Manhã 🌅' if raw_date.hour < 12 else 'Tarde 🌇'}*\n\n "
         )
-
+        message_splitted_index = 0
         for dict in list_of_dict:
             if len(dict["data"]) == 0:
                 continue
-            text += f"*{self.filter(dict['title_section'])}*\n"
+            message[
+                message_splitted_index
+            ] += f"*{text_converter(dict['title_section'])}*\n"
             for _, row in dict["data"].iterrows():
-                job_company_name = self.filter(row["career_page_name"])
-                job_title = self.filter(row["title"])
-                job_url = str(row["job_url"])
+                if len(message[message_splitted_index]) > 3800:
+                    message.append("")
+                    message_splitted_index += 1
 
-                text += f"🏢 {job_company_name}\n"
+                job_company_name = text_converter(row["career_page_name"])
+                job_title = text_converter(row["title"])
+                job_url = str(row["job_url"])
+                job_city = text_converter(row["city"])
+                job_state = text_converter(row["state"])
+
+                message[message_splitted_index] += f"🏢 {job_company_name}\n"
 
                 if dict["type"] == "hybrid":
-                    text += self.filter(f"📍 Local: {row['city']} - {row['state']}\n")
+                    message[
+                        message_splitted_index
+                    ] += f"📍 Local: {job_city} \- {job_state}\n"
 
-                text += f"🔗 [{job_title}]({job_url})\n\n"
+                message[message_splitted_index] += f"🔗 [{job_title}]({job_url})\n\n"
 
-        text += (
+        message[message_splitted_index] += (
             "\n"
             f"Gostou do projeto? Você pode contribuir com uma ⭐️ no repositório:\n"
             "[GitHub \- Junior Zone](https://github.com/Moscarde/Junior_Zone)"
         )
-        return text
+        return message
 
-    def filter(self, text):
-        #'_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
-        return (
-            str(text)
-            .replace(".", "\.")
-            .replace("(", "\(")
-            .replace(")", "\)")
-            .replace("|", "\|")
-            .replace("-", "\-")
-            .replace("+", "\+")
-            .replace("[", "\[")
-            .replace("]", "\]")
-            .replace("{", "\{")
-            .replace("}", "\}")
-            .replace("!", "\!")
-            .replace("#", "\#")
-            .replace("~", "\~")
-            .replace("`", "\`")
-            .replace(">", "\>")
-            .replace("*", "\*")
-            .replace("_", "\_")
-            .replace("=", "\=")
-            .replace("'", "'")
-            .replace('"', '"')
-            .replace("<", "\<")
-        )
+    def tag_as_submitted(self):
+        self.base_df["submitted"] = "True"
+        self.base_df.to_csv(f"data/{self.date}.csv", index=False)
 
-    def export_to_excel(self):
-        dfs = [self.df_jr_remote, self.df_jr_hybrids]
-        df_excel = pd.concat(dfs, ignore_index=True)[
+
+def update_google_sheets_dataset():
+    data_files = os.listdir("data/responses/")
+
+    dfs = []
+    for file in data_files:
+        df = pd.read_csv(f"data/responses/{file}")
+        dfs.append(df)
+
+        df = pd.concat(dfs, ignore_index=True)
+        df = df[
+            (~df["title"].str.upper().str.contains("PLENO"))
+            & (~df["title"].str.upper().str.contains("SÊNIOR"))
+            & (~df["title"].str.upper().str.contains("SENIOR"))
+            & (~df["title"].str.upper().str.contains("SR"))
+            & (~df["title"].str.upper().str.contains("PL"))
+        ]
+        df["date"] = pd.to_datetime(df["published_date"]).dt.strftime("%d/%m/%Y")
+        df = df.fillna("...")
+        df = df[
             [
-                "published_date",
+                "date",
                 "title",
                 "career_page_name",
                 "workplace_type",
@@ -127,7 +127,18 @@ class DataHandler:
                 "state",
             ]
         ]
-        df_excel.columns = [
+        df["workplace_type"] = df["workplace_type"].replace(
+            {"hybrid": "2.Híbrido", "remote": "1.Remoto", "on-site": "3.Presencial"}
+        )
+        df = df.sort_values(
+            by=[
+                "date",
+                "workplace_type",
+            ],
+            ascending=[False, True],
+        )
+        df["workplace_type"] = df["workplace_type"].apply(lambda x: x.split(".")[1])
+        df.columns = [
             "Data",
             "Vaga",
             "Nome da Empresa",
@@ -136,13 +147,35 @@ class DataHandler:
             "Cidade",
             "Estado",
         ]
-        date = datetime.now().date()
-        df_excel.to_excel(f"data/{date}.xlsx", index=False)
+        df.to_csv(f"data/googlesheets_dataset.csv", index=False)
 
-        with pd.ExcelWriter("data/jobs.xlsx", engine="openpyxl", mode="a") as writer:
-            df_excel.to_excel(writer, sheet_name=f"{date}", index=False)
 
-        return df_excel
+def text_converter(text):
+    #'_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
+    return (
+        str(text)
+        .replace(".", "\.")
+        .replace("(", "\(")
+        .replace(")", "\)")
+        .replace("|", "\|")
+        .replace("-", "\-")
+        .replace("+", "\+")
+        .replace("[", "\[")
+        .replace("]", "\]")
+        .replace("{", "\{")
+        .replace("}", "\}")
+        .replace("!", "\!")
+        .replace("#", "\#")
+        .replace("~", "\~")
+        .replace("`", "\`")
+        .replace(">", "\>")
+        .replace("*", "\*")
+        .replace("_", "\_")
+        .replace("=", "\=")
+        .replace("'", "'")
+        .replace('"', '"')
+        .replace("<", "\<")
+    )
 
 
 if __name__ == "__main__":
