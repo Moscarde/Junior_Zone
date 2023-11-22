@@ -1,7 +1,7 @@
 import requests, csv
 from datetime import datetime, timedelta
 import pandas as pd
-
+import time
 
 class GupyScraper:
     def __init__(self):
@@ -23,6 +23,7 @@ class GupyScraper:
                     request = session.get(url, headers=self.headers)
                     self.responses.append(request.json().get("data", []))
                     print("Done!")
+
                 except Exception as e:
                     print(e)
             
@@ -94,17 +95,17 @@ class CsvData:
             "job_url",
             "disabilities",
             "workplace_type",
+            "submitted",
         ]
         self.date = str(datetime.now().date())
         self.verify_data = VerifyData()
 
     def validate_and_write(self, data):
-        with open(f"data/{self.date}.csv", "a+", newline="", encoding="utf-8") as csvfile:
+        with open(f"data/responses/{self.date}.csv", "a+", newline="", encoding="utf-8") as csvfile:
             writer = csv.writer(csvfile)
             if csvfile.tell() == 0:
                 writer.writerow(self.csv_column_names)
 
-            # for data in responses:
             for label_response in data:
                 for job in label_response:
                     if self.verify_data.validate_job_date(
@@ -125,6 +126,7 @@ class CsvData:
                             job["jobUrl"],
                             job["disabilities"],
                             job["workplaceType"],
+                            "False"
                         ]
                         writer.writerow(row)
             self.verify_data.write_df_job_ids()
