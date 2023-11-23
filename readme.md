@@ -4,6 +4,29 @@
 
 Junior Zone é um projeto para ajudar desenvolvedores e analistas iniciantes a encontrarem com facilidade boas oportunidades de vagas de emprego.
 
+<div align="center">
+    <table border="1" width="40%">
+        <thead>
+            <tr><th>🖥️ Links do projeto</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><a href="https://t.me/juniorzone" target="_blank">Grupo Telegram</a></td>
+            </tr>
+            <tr>
+                <td><a href="https://bit.ly/planilhaJuniorZone1" target="_blank">Planilha Online</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+## ⚙️ Funcionalidades
+
+- ✅ Busca e salva dados atualizados de plataformas de vagas
+- ✅ Filtra os dados de removendo vagas de maior senioridade
+- ✅ Formata e envia um relatório de vagas em um grupo acessível do telegram
+
+
 🖥️ Mensagem telegram | 🖥️ Planilha                            
 :----------: | :--------------:                                       
 <img src="pictures/telegram_screenshot.jpg" /> | <img src="pictures/planilha_screenshot.jpg" />   
