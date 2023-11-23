@@ -13,7 +13,6 @@ class GupyScraper:
 
     def request_data(self, labels):
         print(labels)
-        print(len(labels))
         with requests.Session() as session:
             for label in labels:
                 print(f"Requesting for '{label}'...")
