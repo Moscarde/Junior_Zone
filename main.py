@@ -28,6 +28,7 @@ def process_request():
     send_message(message_content, "text")
     if tag_data_as_submitted():
         data_handler.tag_as_submitted()
+        print("TAGED!")
 
 
 def send_message(message_content, message_type):
@@ -60,6 +61,7 @@ def tag_data_as_submitted():
         return True
     else:
         return False
+    
 
 
 def send_custom_text():
