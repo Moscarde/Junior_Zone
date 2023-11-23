@@ -6,8 +6,8 @@ class DataHandler:
     def __init__(self, date, filter_labels):
         self.date = date
         self.base_df = pd.read_csv(f"data/responses/{date}.csv")
-        self.telegram_text = self.process_data(self.base_df)
         self.filter_labels = filter_labels
+        self.telegram_text = self.process_data(self.base_df)
 
     def process_data(self, df):
         df_jr = df[
@@ -57,10 +57,10 @@ class DataHandler:
         message = []
         message.append(
             f"📅 Vagas atualizadas dia: *{raw_date.strftime('%d/%m/%Y')}*\n"
-            f"Período: *{'Manhã 🌅' if raw_date.hour < 12 else 'Tarde 🌇'}*\n"
-            "Nesse grupo são postadas apenas vagas Jr remotas e híbridas que passaram pelo filtro:"
-            f"_{', '.join(self.filter_labels)}_"
-            "Em breve teremos mais filtros ou outros grupos"
+            f"Período: *{'Manhã 🌅' if raw_date.hour < 12 else 'Tarde 🌇'}*\n\n"
+            "Nesse grupo são postadas apenas vagas Jr remotas e híbridas que passaram pelo filtro:\n"
+            f"_{', '.join(self.filter_labels)}_\n"
+            "Em breve teremos mais filtros ou outros grupos\n\n"
         )
         message_splitted_index = 0
         for dict in list_of_dict:
