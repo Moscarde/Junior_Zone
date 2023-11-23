@@ -1,8 +1,6 @@
 import pandas as pd
 from datetime import datetime
 import re, os
-from pprint import pprint
-
 
 class DataHandler:
     def __init__(self, date):
@@ -17,6 +15,7 @@ class DataHandler:
             & (~df["title"].str.upper().str.contains("SENIOR"))
             & (~df["title"].str.upper().str.contains("SR"))
             & (~df["title"].str.upper().str.contains("PL"))
+            & ((df["country"] == "Brasil") | (df["country"].isna()))
             & (df["submitted"] == False)
         ]
         df_jr = df_jr.sort_values(by="state")
@@ -32,7 +31,7 @@ class DataHandler:
                 "🚫 Nenhuma vaga passou pelo filtro 🚫"
                 "\n"
                 "Aqui no grupo são postadas apenas vagas remotas e híbridas, porém a planilha também conta com as vagas sem esse filtro."
-                "[Clique aqui para conferir a planílha](https://github.com)"
+                "[Clique aqui para conferir a planílha](https://docs.google.com/spreadsheets/d/1yii99T2zZtG_OFarL_OxuhDVW0uvMmMhw9I2MygaLqc/edit?usp=sharing)"
             )
         else:
             message = self.contruct_message(
@@ -113,6 +112,7 @@ def update_google_sheets_dataset():
             & (~df["title"].str.upper().str.contains("SENIOR"))
             & (~df["title"].str.upper().str.contains("SR"))
             & (~df["title"].str.upper().str.contains("PL"))
+            & ((df["country"] == "Brasil") | (df["country"].isna()))
         ]
         df["date"] = pd.to_datetime(df["published_date"]).dt.strftime("%d/%m/%Y")
         df = df.fillna("...")
@@ -179,5 +179,6 @@ def text_converter(text):
 
 
 if __name__ == "__main__":
+    from pprint import pprint
     data = DataHandler("data/2023-11-21")
     pprint(data)
