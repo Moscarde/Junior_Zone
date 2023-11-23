@@ -61,7 +61,7 @@ Junior Zone é um projeto para ajudar desenvolvedores e analistas iniciantes a e
     - Enviar o relatório
     - Enviar um texto customizado 
     - Enviar uma imagem
-    - Selecionar grupo
+    - Formatar o csv com toda a base de dados
 
 ## 📋 Pré-requisitos
 
