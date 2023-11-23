@@ -1,11 +1,11 @@
 <p align="center">
-    <a href="#"><img src="pictures/header.jpg" alt="Logo" width=90%/></a>
+    <a href="#"><img src="pictures/header.jpg" alt="Logo do projeto Junior Zone" width=100%/></a>
 </p>
 
 Junior Zone é um projeto para ajudar desenvolvedores e analistas iniciantes a encontrarem com facilidade boas oportunidades de vagas de emprego.
 
 <div align="center">
-    <table border="1" width="40%">
+    <table border="1" width="60%">
         <thead>
             <tr><th>🖥️ Links do projeto</th></tr>
         </thead>
