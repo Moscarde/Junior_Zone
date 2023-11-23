@@ -13,16 +13,20 @@ TOKEN = os.environ["TOKEN"]
 MAIN_GROUP_CHAT_ID = os.environ["MAIN_GROUP_CHAT_ID"]
 TEST_GROUP_CHAT_ID = os.environ["TEST_GROUP_CHAT_ID"]
 
+#temp
+filter_labels = ["analista", "dados", "python", "data"]
 
 def request_data():
+    global filter_labels
     scraper = GupyScraper()
-    scraper.request_and_save(["analista", "dados", "python", "data"])
+    filter_labels = ["analista", "dados", "python", "data"]
+    scraper.request_and_save(filter_labels)
     main()
 
 
 def process_request():
     date = datetime.now().date()
-    data_handler = DataHandler(date)
+    data_handler = DataHandler(date, filter_labels)
 
     message_content = data_handler.telegram_text
     send_message(message_content, "text")
