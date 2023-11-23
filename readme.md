@@ -58,10 +58,12 @@ Junior Zone é um projeto para ajudar desenvolvedores e analistas iniciantes a e
 4. O console apresenta uma arvore de funcionalidades:
     - Fazer a requisição de novos dados
     - Filtrar e processar últimos dados
-    - Enviar o relatório
-    - Enviar um texto customizado 
-    - Enviar uma imagem
+    - Enviar o relatório*
+    - Enviar um texto customizado *
+    - Enviar uma imagem*
     - Formatar o csv com toda a base de dados
+
+>*Para utilizar funções com interação com o Telegram, configure as variaveis de ambiente: `TOKEN` com o token do seu bot, `MAIN_GROUP_CHAT_ID` com o id do grupo principal e `TEST_GROUP_CHAT_ID` com o id do grupo de teste.
 
 ## 📋 Pré-requisitos
 
