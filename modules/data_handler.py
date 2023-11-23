@@ -94,7 +94,7 @@ class DataHandler:
 
     def tag_as_submitted(self):
         self.base_df["submitted"] = "True"
-        self.base_df.to_csv(f"data/{self.date}.csv", index=False)
+        self.base_df.to_csv(f"data/responses/{self.date}.csv", index=False)
 
 
 def update_google_sheets_dataset():
