@@ -58,6 +58,7 @@ pip install -r pandas requests
 - [x] Carregar, filtrar e formatar os dados para saídas em formato de mensagem e planílha
 - [x] Integrar com um bot telegram
 - [x] Enviar relatorios diários pelo bot
+- [x] Desenvolver modelo de planilha no googlesheets e automatizar sua atualização
 - [ ] Desenvolver mais funcionalidades para o bot
 - [ ] Abranger outras áreas como front e back-end
 - [ ] Buscar dados em outras plataformas
