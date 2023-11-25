@@ -29,10 +29,10 @@ class DataHandler:
 
         if (len(self.df_jr_remote) == 0) and (len(self.df_jr_hybrids) == 0):
             message = (
-                "🚫 Nenhuma nova vaga remota / hibrida foi encontrada até o momento 🚫"
+                "🚫 Nenhuma nova vaga remota / hibrida foi encontrada até o momento"
                 "\n"
                 "Confira a planilha para ver todas as vagas presenciais e remotas através do link:\n"
-                "[Clique aqui para conferir a planílha](https://docs.google.com/spreadsheets/d/1yii99T2zZtG_OFarL_OxuhDVW0uvMmMhw9I2MygaLqc/edit?usp=sharing)"
+                "[Planilha com todas as vagas atualizadas](https://docs.google.com/spreadsheets/d/1yii99T2zZtG_OFarL_OxuhDVW0uvMmMhw9I2MygaLqc/edit?usp=sharing)"
             )
         else:
             message = self.contruct_message(
