@@ -73,7 +73,7 @@ Antes de usar iniciar o Junior Zone localmente, certifique-se de ter os seguinte
 - Ter as bibliotecas instaladas. Você pode instalar usando o comando:
 
 ``` shell
-pip install -r pandas requests 
+pip install -r pandas requests python-dotenv
 ```
 
 ## ⌛ Progresso e metas de desenvolvimento
