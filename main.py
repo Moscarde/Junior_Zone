@@ -5,7 +5,7 @@ from modules.data_handler import update_google_sheets_dataset
 from modules.telegram_bot import TelegramBot
 from datetime import datetime
 from dotenv import load_dotenv
-import os, io
+import os, io, sys
 
 
 load_dotenv()
@@ -13,8 +13,39 @@ TOKEN = os.environ["TOKEN"]
 MAIN_GROUP_CHAT_ID = os.environ["MAIN_GROUP_CHAT_ID"]
 TEST_GROUP_CHAT_ID = os.environ["TEST_GROUP_CHAT_ID"]
 
-#temp
+
+def detect_environment():
+    if "--dev" in sys.argv:
+        print(">> DEVELOPMENT ENVIRONMENT SELECTED\n")
+        return TEST_GROUP_CHAT_ID
+
+    elif "--prod" in sys.argv:
+        print(">> PRODUCTION ENVIRONMENT SELECTED\n")
+        return MAIN_GROUP_CHAT_ID
+
+    else:
+        return select_environment()
+
+
+def select_environment():
+    print("NO ENVIRONMENT SELECTED, PLEASE SELECT ONE:")
+    groups_id = {1: MAIN_GROUP_CHAT_ID, 2: TEST_GROUP_CHAT_ID}
+
+    print("ENVIRONMENTS:\n" "[1] PRODUCTION GROUP\n" "[2] DEVELOPMENT GROUP")
+    option = int(input(">> SELECT ENVIRONMENT:"))
+
+    if option in groups_id:
+        chat_id = groups_id[option]
+        return chat_id
+
+    else:
+        print("INVALID OPTION")
+        return main()
+
+
+# temp
 filter_labels = ["analista", "dados", "python", "data"]
+
 
 def request_data():
     global filter_labels
@@ -24,38 +55,24 @@ def request_data():
     main()
 
 
-def process_request():
+def process_request(chat_id):
     date = datetime.now().date()
     data_handler = DataHandler(date, filter_labels)
 
     message_content = data_handler.telegram_text
-    send_message(message_content, "text")
+    send_message(message_content, "text", chat_id)
     if tag_data_as_submitted():
         data_handler.tag_as_submitted()
         print("TAGED!")
 
 
-def send_message(message_content, message_type):
-    chat_id = input_select_group()
-
+def send_message(message_content, message_type, chat_id):
     jj = TelegramBot(TOKEN)
 
     if message_type == "text":
         jj.send_message(chat_id, message_content)
     if message_type == "image":
         jj.send_image(chat_id, message_content)
-
-
-def input_select_group():
-    groups_id = {1: MAIN_GROUP_CHAT_ID, 2: TEST_GROUP_CHAT_ID}
-    print("\nGROUPS:\n" "[1] MAIN GROUP\n" "[2] TEST GROUP")
-    group_id = int(input(">> SELECT GROUP:"))
-    if group_id in groups_id:
-        chat_id = groups_id[group_id]
-    else:
-        print("INVALID OPTION")
-        return main()
-    return chat_id
 
 
 def tag_data_as_submitted():
@@ -65,20 +82,19 @@ def tag_data_as_submitted():
         return True
     else:
         return False
-    
 
 
-def send_custom_text():
-    message = input("\n>> ENTER CUSTON TEXT:")
+def send_custom_text(chat_id):
+    message = input("\n>> ENTER CUSTON TEXT: ")
     converted_message = telegram_text_converter(message)
-    send_message(converted_message, "text")
+    send_message(converted_message, "text", chat_id)
     main()
 
 
-def send_image():
+def send_image(chat_id):
     file_name = input(">> FILE NAME IN PICTURES FOLDER: ")
     content = open(f"pictures/{file_name}", "rb")
-    send_message(content, "image")
+    send_message(content, "image", chat_id)
 
 
 def update_sheets_dataset():
@@ -91,11 +107,13 @@ def update_sheets_dataset():
 
 
 def main():
+    chat_id = detect_environment()
+
     options = {
         1: request_data,
-        2: process_request,
-        3: send_custom_text,
-        4: send_image,
+        2: lambda: process_request(chat_id),
+        3: lambda: send_custom_text(chat_id),
+        4: lambda: send_image(chat_id),
         5: update_sheets_dataset,
     }
     print(
@@ -105,7 +123,7 @@ def main():
         "[4] SEND IMAGE\n"
         "[5] UPDATE SHEETS DATASET"
     )
-    option = int(input(">> SELECT FUNCTION:"))
+    option = int(input(">> SELECT FUNCTION: "))
 
     if option in options:
         options[option]()
@@ -114,5 +132,17 @@ def main():
 
 
 if __name__ == "__main__":
+    print(
+        """
+.·:''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''':·.
+: :           #                                  #######                          : :
+: :           # #    # #    # #  ####  #####          #   ####  #    # ######     : :
+: :           # #    # ##   # # #    # #    #        #   #    # ##   # #          : :
+: :           # #    # # #  # # #    # #    #       #    #    # # #  # #####      : :
+: :     #     # #    # #  # # # #    # #####       #     #    # #  # # #          : :
+: :     #     # #    # #   ## # #    # #   #      #      #    # #   ## #          : :
+: :      #####   ####  #    # #  ####  #    #    #######  ####  #    # ######     : :
+'·:...............................................................................:·'
+"""
+    )
     main()
-
