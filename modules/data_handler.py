@@ -109,49 +109,49 @@ def update_google_sheets_dataset():
         df = pd.read_csv(f"data/responses/{file}")
         dfs.append(df)
 
-        df = pd.concat(dfs, ignore_index=True)
-        df = df[
-            (~df["title"].str.upper().str.contains("PLENO"))
-            & (~df["title"].str.upper().str.contains("SÊNIOR"))
-            & (~df["title"].str.upper().str.contains("SENIOR"))
-            & (~df["title"].str.upper().str.contains("SR"))
-            & (~df["title"].str.upper().str.contains("PL"))
-            & ((df["country"] == "Brasil") | (df["country"].isna()))
+    df = pd.concat(dfs, ignore_index=True)
+    df = df[
+        (~df["title"].str.upper().str.contains("PLENO"))
+        & (~df["title"].str.upper().str.contains("SÊNIOR"))
+        & (~df["title"].str.upper().str.contains("SENIOR"))
+        & (~df["title"].str.upper().str.contains("SR"))
+        & (~df["title"].str.upper().str.contains("PL"))
+        & ((df["country"] == "Brasil") | (df["country"].isna()))
+    ]
+    df["date"] = pd.to_datetime(df["published_date"]).dt.strftime("%d/%m/%Y")
+    df = df.fillna("...")
+    df = df[
+        [
+            "date",
+            "title",
+            "career_page_name",
+            "workplace_type",
+            "job_url",
+            "city",
+            "state",
         ]
-        df["date"] = pd.to_datetime(df["published_date"]).dt.strftime("%d/%m/%Y")
-        df = df.fillna("...")
-        df = df[
-            [
-                "date",
-                "title",
-                "career_page_name",
-                "workplace_type",
-                "job_url",
-                "city",
-                "state",
-            ]
-        ]
-        df["workplace_type"] = df["workplace_type"].replace(
-            {"hybrid": "2.Híbrido", "remote": "1.Remoto", "on-site": "3.Presencial"}
-        )
-        df = df.sort_values(
-            by=[
-                "date",
-                "workplace_type",
-            ],
-            ascending=[False, True],
-        )
-        df["workplace_type"] = df["workplace_type"].apply(lambda x: x.split(".")[1])
-        df.columns = [
-            "Data",
-            "Vaga",
-            "Nome da Empresa",
-            "Tipo de Trabalho",
-            "URL",
-            "Cidade",
-            "Estado",
-        ]
-        df.to_csv(f"data/googlesheets_dataset.csv", index=False)
+    ]
+    df["workplace_type"] = df["workplace_type"].replace(
+        {"hybrid": "2.Híbrido", "remote": "1.Remoto", "on-site": "3.Presencial"}
+    )
+    df = df.sort_values(
+        by=[
+            "date",
+            "workplace_type",
+        ],
+        ascending=[False, True],
+    )
+    df["workplace_type"] = df["workplace_type"].apply(lambda x: x.split(".")[1])
+    df.columns = [
+        "Data",
+        "Vaga",
+        "Nome da Empresa",
+        "Tipo de Trabalho",
+        "URL",
+        "Cidade",
+        "Estado",
+    ]
+    df.to_csv(f"data/googlesheets_dataset.csv", index=False)
 
 
 def text_converter(text):
