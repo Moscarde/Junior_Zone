@@ -16,7 +16,7 @@ class GupyScraper:
         with requests.Session() as session:
             for label in labels:
                 print(f"Requesting for '{label}'...")
-                url = f"https://portal.api.gupy.io/api/job?name={label}&offset=0&limit=800"
+                url = f"https://portal.api.gupy.io/api/job?name={label}&offset=0&limit=500"
 
                 try:
                     request = session.get(url, headers=self.headers)
