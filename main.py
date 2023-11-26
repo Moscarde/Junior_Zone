@@ -43,12 +43,8 @@ def select_environment():
         return main()
 
 
-# temp
-filter_labels = ["analista", "dados", "python", "data"]
-
-
 def request_data():
-    global filter_labels
+
     scraper = GupyScraper()
     filter_labels = ["analista", "dados", "python", "data"]
     scraper.request_and_save(filter_labels)
@@ -56,8 +52,7 @@ def request_data():
 
 
 def process_request(chat_id):
-    date = datetime.now().date()
-    data_handler = DataHandler(date, filter_labels)
+    data_handler = DataHandler()
 
     message_content = data_handler.telegram_text
     send_message(message_content, "text", chat_id)
