@@ -1,18 +1,24 @@
-import requests, csv
-from datetime import datetime, timedelta
-import pandas as pd
+import csv
 import time
+from datetime import datetime, timedelta
+
+import pandas as pd
+import requests
+
 
 class GupyScraper:
-    def __init__(self):
+    def __init__(self, search_labels):
         self.headers = {
             "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 OPR/100.0.0.0 (Edition std-1)"
         }
-        self.responses = []
+        self.search_labels = search_labels
+
         self.ids = set()
 
     def request_data(self, labels):
         print(labels)
+        responses = []
+
         with requests.Session() as session:
             for label in labels:
                 print(f"Requesting for '{label}'...")
@@ -20,22 +26,28 @@ class GupyScraper:
 
                 try:
                     request = session.get(url, headers=self.headers)
-                    self.responses.append(request.json().get("data", []))
-                    print("Done!")
+                    response = request.json().get("data", [])
+                    responses.append(response)
+
+                    pd.DataFrame(request.json().get("data", [])).to_csv(
+                        f"data/responses/staged_labels_responses/{label}.csv", index=False
+                    )
+
+                    print(f"Found {len(response)} results for '{label}'...")
+                    time.sleep(0.5)
 
                 except Exception as e:
                     print(e)
-            
-            return self.responses
 
-    def save_data_to_csv(self, data):
-        save_data = CsvData()
-        save_data.validate_and_write(data)
+        return responses
 
-    def request_and_save(self, labels):
-        data = self.request_data(labels)
-        self.save_data_to_csv(data)
-        
+    def request_and_save(self):
+        labels_responses = self.request_data(self.search_labels)
+        self.save_data_to_csv(labels_responses)
+
+    def save_data_to_csv(self, labels_responses):
+        csv_data = CsvData()
+        csv_data.validate_and_write(labels_responses)
 
 
 class VerifyData:
@@ -99,13 +111,15 @@ class CsvData:
         self.date = str(datetime.now().date())
         self.verify_data = VerifyData()
 
-    def validate_and_write(self, data):
-        with open(f"data/responses/{self.date}.csv", "a+", newline="", encoding="utf-8") as csvfile:
+    def validate_and_write(self, labels_responses):
+        with open(
+            f"data/responses/{self.date}.csv", "a+", newline="", encoding="utf-8"
+        ) as csvfile:
             writer = csv.writer(csvfile)
             if csvfile.tell() == 0:
                 writer.writerow(self.csv_column_names)
 
-            for label_response in data:
+            for label_response in labels_responses:
                 for job in label_response:
                     if self.verify_data.validate_job_date(
                         job
@@ -114,7 +128,10 @@ class CsvData:
                             job["id"],
                             job["publishedDate"],
                             job["name"],
-                            job["description"].replace('\r', ' ').replace('\n', ' ').replace('&nbsp;', ' '),
+                            job["description"]
+                            .replace("\r", " ")
+                            .replace("\n", " ")
+                            .replace("&nbsp;", " "),
                             job["careerPageName"],
                             job["type"],
                             job["applicationDeadline"],
@@ -125,13 +142,30 @@ class CsvData:
                             job["jobUrl"],
                             job["disabilities"],
                             job["workplaceType"],
-                            "False"
+                            "False",
                         ]
                         writer.writerow(row)
             self.verify_data.write_df_job_ids()
 
 
 if __name__ == "__main__":
-    scraper = GupyScraper()
-    scraper.request_and_save(["analista", "dados", "python", "data"])
+    filter_labels = [
+        "analista",
+        "dados",
+        "python",
+        "data",
+        "Desenvolvedor",
+        "Dev",
+        "Front-end",
+        "Back-end",
+        "Full Stack",
+        "FullStack",
+        "Software",
+        "DevOps",
+        "Business Intelligence",
+        "Machine Learning",
+        "Inteligência Artificial",
+    ]
 
+    scraper = GupyScraper(filter_labels)
+    scraper.request_and_save()
