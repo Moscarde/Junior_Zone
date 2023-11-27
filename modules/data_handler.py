@@ -6,98 +6,76 @@ import re, os
 class DataHandler:
     def __init__(self):
         self.date = datetime.now().date()
-        self.base_df = pd.read_csv(f"data/responses/{self.date}.csv")
-        self.telegram_text = self.process_data(self.base_df)
+        self.base_dataset = pd.read_csv(f"data/responses/{self.date}.csv")
+        self.filtered_dfs = self.process_dataset(self.base_dataset)
 
-    def process_data(self, df):
-        df_jr = df[
-            (~df["title"].str.upper().str.contains("PLENO"))
-            & (~df["title"].str.upper().str.contains("SÊNIOR"))
-            & (~df["title"].str.upper().str.contains("SENIOR"))
-            & (~df["title"].str.upper().str.contains("SR"))
-            & (~df["title"].str.upper().str.contains("PL"))
-            & ((df["country"] == "Brasil") | (df["country"].isna()))
-            & (df["submitted"] == False)
-        ]
+    def process_dataset(self, base_dataset):
+        df_jr = self.apply_exclusion_filters(
+            base_dataset, ["PLENO", "SÊNIOR", "SENIOR", "SR", "PL", "III"]
+        )
+
         df_jr = df_jr.sort_values(by="state")
 
-        print("Total de vagas:", len(df))
+        print("Total de vagas retornadas:", len(base_dataset))
         print("Vagas filtradas:", len(df_jr))
 
-        self.df_jr_remote = df_jr[(df_jr["is_remote_work"] == True)]
-        self.df_jr_hybrids = df_jr[(df_jr["workplace_type"] == "hybrid")]
+        dados_filter = [
+            "analista",
+            "dados",
+            "data",
+            "Machine Learning",
+            "Inteligência Artificial",
+            "Business Intelligence",
+        ]
 
-        if (len(self.df_jr_remote) == 0) and (len(self.df_jr_hybrids) == 0):
-            message = (
-                "🚫 Nenhuma nova vaga remota / hibrida foi encontrada até o momento"
-                "\n"
-                "Confira a planilha para ver todas as vagas presenciais e remotas através do link:\n"
-                "[Planilha com todas as vagas atualizadas](https://docs.google.com/spreadsheets/d/1yii99T2zZtG_OFarL_OxuhDVW0uvMmMhw9I2MygaLqc/edit?usp=sharing)"
-            )
-        else:
-            message = self.contruct_message(
-                [
-                    {
-                        "title_section": "🌐 Vagas Jr - Remotas 🌐 ",
-                        "data": self.df_jr_remote,
-                        "type": "remote ",
-                    },
-                    {
-                        "title_section": "🌍 Vagas Jr - Híbridas 🌍",
-                        "data": self.df_jr_hybrids,
-                        "type": "hybrid",
-                    },
-                ]
-            )
+        dev_filter = [
+            "Desenvolvedor",
+            "Dev",
+            "Front-end",
+            "Back-end",
+            "Full Stack",
+            "Software",
+            "fullstack",
+            "DevOps",
+        ]
 
-        return message
+        df_dados = self.apply_search_filters(df_jr, dados_filter)
+        df_dados_remote = df_dados[(df_dados["workplace_type"] == "remote")]
+        df_dados_hybrid = df_dados[(df_dados["workplace_type"] == "hybrid")]
 
-    def contruct_message(self, list_of_dict):
-        raw_date = datetime.now()
-        message = []
-        message.append(
-            f"📅 Vagas atualizadas dia: *{raw_date.strftime('%d/%m/%Y')}*\n"
-            f"Período: *{'Manhã 🌅' if raw_date.hour < 12 else 'Tarde 🌇'}*\n\n"
-            "Nesse grupo são postadas apenas vagas Jr remotas e híbridas que passaram pelo filtro:\n"
-            "Em breve teremos mais filtros ou outros grupos\n\n"
-        )
-        message_splitted_index = 0
-        for dict in list_of_dict:
-            if len(dict["data"]) == 0:
-                continue
-            message[
-                message_splitted_index
-            ] += f"*{text_converter(dict['title_section'])}*\n"
-            for _, row in dict["data"].iterrows():
-                if len(message[message_splitted_index]) > 3800:
-                    message.append("")
-                    message_splitted_index += 1
+        df_dev = self.apply_search_filters(df_jr, dev_filter)
+        df_dev_remote = df_dev[(df_dev["is_remote_work"] == True)]
+        df_dev_hybrid = df_dev[(df_dev["workplace_type"] == "hybrid")]
 
-                job_company_name = text_converter(row["career_page_name"])
-                job_title = text_converter(row["title"])
-                job_url = str(row["job_url"])
-                job_city = text_converter(row["city"])
-                job_state = text_converter(row["state"])
+        return {
+            "dados_remote": df_dados_remote,
+            "dados_hybrid": df_dados_hybrid,
+            "dev_remote": df_dev_remote,
+            "dev_hybrid": df_dev_hybrid,
+        }
 
-                message[message_splitted_index] += f"🏢 {job_company_name}\n"
+    def apply_exclusion_filters(self, df, filters):
+        for f in filters:
+            df = df[~df["title"].str.upper().str.contains(f.upper())]
 
-                if dict["type"] == "hybrid":
-                    message[
-                        message_splitted_index
-                    ] += f"📍 Local: {job_city} \- {job_state}\n"
+        df = df[
+            ((df["country"] == "Brasil") | (df["country"].isna()))
+            & (df["submitted"] == False)
+        ]
 
-                message[message_splitted_index] += f"🔗 [{job_title}]({job_url})\n\n"
+        return df
 
-        message[message_splitted_index] += (
-            "\n"
-            f"Gostou do projeto? Você pode contribuir com uma ⭐️ no repositório:\n"
-            "[GitHub \- Junior Zone](https://github.com/Moscarde/Junior_Zone)"
-        )
-        return message
+    def apply_search_filters(self, df, filters):
+        temp_df_list = []
+        for f in filters:
+            temp_df_list.append(df[df["title"].str.upper().str.contains(f.upper())])
+
+        df_final = pd.concat(temp_df_list, ignore_index=True)
+        return df_final
 
     def tag_as_submitted(self):
-        self.base_df["submitted"] = "True"
-        self.base_df.to_csv(f"data/responses/{self.date}.csv", index=False)
+        self.base_dataset["submitted"] = "True"
+        self.base_dataset.to_csv(f"data/responses/{self.date}.csv", index=False)
 
 
 def update_google_sheets_dataset():
@@ -153,35 +131,35 @@ def update_google_sheets_dataset():
     df.to_csv(f"data/googlesheets_dataset.csv", index=False)
 
 
-def text_converter(text):
-    #'_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
-    return (
-        str(text)
-        .replace(".", "\.")
-        .replace("(", "\(")
-        .replace(")", "\)")
-        .replace("|", "\|")
-        .replace("-", "\-")
-        .replace("+", "\+")
-        .replace("[", "\[")
-        .replace("]", "\]")
-        .replace("{", "\{")
-        .replace("}", "\}")
-        .replace("!", "\!")
-        .replace("#", "\#")
-        .replace("~", "\~")
-        .replace("`", "\`")
-        .replace(">", "\>")
-        .replace("*", "\*")
-        .replace("=", "\=")
-        .replace("'", "'")
-        .replace('"', '"')
-        .replace("<", "\<")
-    )
+# def text_converter(text):
+#     #'_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
+#     return (
+#         str(text)
+#         .replace(".", "\.")
+#         .replace("(", "\(")
+#         .replace(")", "\)")
+#         .replace("|", "\|")
+#         .replace("-", "\-")
+#         .replace("+", "\+")
+#         .replace("[", "\[")
+#         .replace("]", "\]")
+#         .replace("{", "\{")
+#         .replace("}", "\}")
+#         .replace("!", "\!")
+#         .replace("#", "\#")
+#         .replace("~", "\~")
+#         .replace("`", "\`")
+#         .replace(">", "\>")
+#         .replace("*", "\*")
+#         .replace("=", "\=")
+#         .replace("'", "'")
+#         .replace('"', '"')
+#         .replace("<", "\<")
+#     )
 
 
 if __name__ == "__main__":
     from pprint import pprint
 
     data = DataHandler()
-    pprint(data)
+

@@ -1,12 +1,13 @@
 from modules.gupy_scraper import GupyScraper
 from modules.data_handler import DataHandler
-from modules.data_handler import text_converter as telegram_text_converter
 from modules.data_handler import update_google_sheets_dataset
+from modules.telegram_message import TelegramMessage
 from modules.telegram_bot import TelegramBot
 from datetime import datetime
 from dotenv import load_dotenv
 import os, io, sys
 
+from pprint import pprint
 
 load_dotenv()
 TOKEN = os.environ["TOKEN"]
@@ -44,7 +45,6 @@ def select_environment():
 
 
 def request_data():
-
     scraper = GupyScraper()
     filter_labels = ["analista", "dados", "python", "data"]
     scraper.request_and_save(filter_labels)
@@ -53,9 +53,18 @@ def request_data():
 
 def process_request(chat_id):
     data_handler = DataHandler()
+    filtered_vacancies_dfs = data_handler.filtered_dfs
 
-    message_content = data_handler.telegram_text
-    send_message(message_content, "text", chat_id)
+    telegram_message = TelegramMessage(filtered_vacancies_dfs)
+
+    send_message(telegram_message.header, "text", chat_id)
+
+    send_message(telegram_message.section_dados_image, "image", chat_id)
+    send_message(telegram_message.section_dados_messages, "text", chat_id)
+
+    send_message(telegram_message.section_dev_image, "image", chat_id)
+    send_message(telegram_message.section_dev_messages, "text", chat_id)
+
     if tag_data_as_submitted():
         data_handler.tag_as_submitted()
         print("TAGED!")
@@ -80,8 +89,8 @@ def tag_data_as_submitted():
 
 
 def send_custom_text(chat_id):
-    message = input("\n>> ENTER CUSTON TEXT: ")
-    converted_message = telegram_text_converter(message)
+    text = input("\n>> ENTER CUSTON TEXT: ")
+    converted_message = TelegramMessage.formatter_string(text)
     send_message(converted_message, "text", chat_id)
     main()
 
