@@ -45,7 +45,6 @@ def select_environment():
 
 
 def request_data():
-    scraper = GupyScraper()
     filter_labels = [
         "analista",
         "dados",
@@ -53,8 +52,8 @@ def request_data():
         "data",
         "Desenvolvedor",
         "Dev",
-        "Front-end",
-        "Back-end",
+        "Front",
+        "Back",
         "Full Stack",
         "FullStack",
         "Software",
@@ -63,7 +62,8 @@ def request_data():
         "Machine Learning",
         "Inteligência Artificial",
     ]
-    scraper.request_and_save(filter_labels)
+    scraper = GupyScraper(filter_labels)
+    scraper.request_and_save()
     main()
 
 
@@ -72,7 +72,6 @@ def process_request(chat_id):
     filtered_vacancies_dfs = data_handler.filtered_dfs
 
     telegram_message = TelegramMessage(filtered_vacancies_dfs)
-
     send_message(telegram_message.header, "text", chat_id)
 
     send_message(telegram_message.section_dados_image, "image", chat_id)
