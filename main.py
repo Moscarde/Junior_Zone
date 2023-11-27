@@ -46,7 +46,23 @@ def select_environment():
 
 def request_data():
     scraper = GupyScraper()
-    filter_labels = ["analista", "dados", "python", "data"]
+    filter_labels = [
+        "analista",
+        "dados",
+        "python",
+        "data",
+        "Desenvolvedor",
+        "Dev",
+        "Front-end",
+        "Back-end",
+        "Full Stack",
+        "FullStack",
+        "Software",
+        "DevOps",
+        "Business Intelligence",
+        "Machine Learning",
+        "Inteligência Artificial",
+    ]
     scraper.request_and_save(filter_labels)
     main()
 
