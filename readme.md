@@ -85,9 +85,9 @@ pip install -r pandas requests python-dotenv
 - [x] Integrar com um bot telegram
 - [x] Enviar relatorios diários pelo bot
 - [x] Desenvolver modelo de planilha no googlesheets e automatizar sua atualização
-- [ ] Desenvolver mais funcionalidades para o bot
-- [ ] Abranger outras áreas como front e back-end
+- [x] Abranger outras áreas como front e back-end
 - [ ] Buscar dados em outras plataformas
+- [ ] Desenvolver mais funcionalidades para o bot
 
 E talvez algumas funcionalidades a mais
 
