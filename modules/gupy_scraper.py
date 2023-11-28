@@ -30,7 +30,7 @@ class GupyScraper:
                     responses.append(response)
 
                     pd.DataFrame(request.json().get("data", [])).to_csv(
-                        f"data/responses/staged_labels_responses/{label}.csv", index=False
+                        f"data/staged_labels_responses/{label}.csv", index=False
                     )
 
                     print(f"Found {len(response)} results for '{label}'...")
