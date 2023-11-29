@@ -3,11 +3,9 @@ from modules.data_handler import DataHandler
 from modules.data_handler import update_google_sheets_dataset
 from modules.telegram_message import TelegramMessage
 from modules.telegram_bot import TelegramBot
-from datetime import datetime
 from dotenv import load_dotenv
-import os, io, sys
+import os, sys
 
-from pprint import pprint
 
 load_dotenv()
 TOKEN = os.environ["TOKEN"]
@@ -17,11 +15,11 @@ TEST_GROUP_CHAT_ID = os.environ["TEST_GROUP_CHAT_ID"]
 
 def detect_environment():
     if "--dev" in sys.argv:
-        print(">> DEVELOPMENT ENVIRONMENT SELECTED\n")
+        print(">> DEVELOPMENT ENVIRONMENT SELECTED")
         return TEST_GROUP_CHAT_ID
 
     elif "--prod" in sys.argv:
-        print(">> PRODUCTION ENVIRONMENT SELECTED\n")
+        print(">> PRODUCTION ENVIRONMENT SELECTED")
         return MAIN_GROUP_CHAT_ID
 
     else:
@@ -72,26 +70,49 @@ def process_request(chat_id):
     filtered_vacancies_dfs = data_handler.filtered_dfs
 
     telegram_message = TelegramMessage(filtered_vacancies_dfs)
-    send_message(telegram_message.header, "text", chat_id)
 
-    send_message(telegram_message.section_dados_image, "image", chat_id)
-    send_message(telegram_message.section_dados_messages, "text", chat_id)
+    send_message(
+        message_content=telegram_message.header,
+        message_type="text",
+        chat_id=chat_id,
+        disable_notification=False,
+    )
 
-    send_message(telegram_message.section_dev_image, "image", chat_id)
-    send_message(telegram_message.section_dev_messages, "text", chat_id)
+    send_message(
+        message_content=telegram_message.section_dados_image,
+        message_type="image",
+        chat_id=chat_id,
+    )
+    send_message(
+        message_content=telegram_message.section_dados_messages,
+        message_type="text",
+        chat_id=chat_id,
+    )
+
+    send_message(
+        message_content=telegram_message.section_dev_image,
+        message_type="image",
+        chat_id=chat_id,
+    )
+    send_message(
+        message_content=telegram_message.section_dev_messages,
+        message_type="text",
+        chat_id=chat_id,
+    )
 
     if tag_data_as_submitted():
         data_handler.tag_as_submitted()
         print("TAGED!")
 
 
-def send_message(message_content, message_type, chat_id):
-    jj = TelegramBot(TOKEN)
+def send_message(message_content, message_type, chat_id, disable_notification=True):
+    junior_bot = TelegramBot(TOKEN)
 
     if message_type == "text":
-        jj.send_message(chat_id, message_content)
+        junior_bot.send_message(chat_id, message_content, disable_notification)
+
     if message_type == "image":
-        jj.send_image(chat_id, message_content)
+        junior_bot.send_image(chat_id, message_content, disable_notification)
 
 
 def tag_data_as_submitted():
@@ -136,6 +157,7 @@ def main():
         5: update_sheets_dataset,
     }
     print(
+        "\n"
         "[1] REQUEST DATA\n"
         "[2] PROCESS AND SEND LAST REQUEST\n"
         "[3] SEND CUSTOM TEXT\n"

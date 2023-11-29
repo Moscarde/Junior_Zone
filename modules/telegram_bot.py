@@ -13,9 +13,10 @@ class TelegramBot:
         response = requests.get(self.api_url + method, params)
         return response.json()["result"]
 
-    def send_message(self, chat_id, content):
+    def send_message(self, chat_id, content, disable_notification):
         if type(content) == str:
             content = [content]
+
         for text in content:
             method = "sendMessage"
             params = {
@@ -23,13 +24,15 @@ class TelegramBot:
                 "text": text,
                 "parse_mode": "MarkdownV2",
                 "disable_web_page_preview": True,
+                "disable_notification": disable_notification
             }
+
             response = requests.post(self.api_url + method, params)
             self.print_response_status(response)
 
-    def send_image(self, chat_id, file_opened):
+    def send_image(self, chat_id, file_opened, disable_notification):
         method = "sendPhoto"
-        params = {"chat_id": chat_id}
+        params = {"chat_id": chat_id, "disable_notification": disable_notification}
         files = {"photo": file_opened}
         response = requests.post(self.api_url + method, params, files=files)
         self.print_response_status(response)
@@ -42,7 +45,6 @@ class TelegramBot:
         else:
             print(f"FAIL - Error code: {response.json()['error_code']}")
             print(f"Description: {response.json()['description']}\n")
-
 
 
 if __name__ == "__main__":
