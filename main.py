@@ -5,6 +5,9 @@ from modules.telegram_message import TelegramMessage
 from modules.telegram_bot import TelegramBot
 from dotenv import load_dotenv
 import os, sys
+import webbrowser
+import time
+import subprocess
 
 
 load_dotenv()
@@ -24,6 +27,22 @@ def detect_environment():
 
     else:
         return select_environment()
+    
+def fast_run(chat_id):
+    if "--request" in sys.argv:
+        print(">> FAST RUN")
+        request_data()
+        process_request(chat_id)
+        update_sheets_dataset()
+
+        git_command = 'gitpush.bat'
+        subprocess.call([git_command])
+
+        print(">> WAITING 20s FOR THE PROCESS TO FINISH")
+        time.sleep(10)
+        url = "https://bit.ly/planilhaJuniorZone1"
+        webbrowser.open(url)
+        input('>> PRESS ENTER TO EXIT')
 
 
 def select_environment():
@@ -62,7 +81,7 @@ def request_data():
     ]
     scraper = GupyScraper(filter_labels)
     scraper.request_and_save()
-    main()
+    # main()
 
 
 def process_request(chat_id):
@@ -148,6 +167,7 @@ def update_sheets_dataset():
 
 def main():
     chat_id = detect_environment()
+    fast_run(chat_id)
 
     options = {
         1: request_data,
