@@ -95,7 +95,7 @@ def update_google_sheets_dataset():
         & (~df["title"].str.upper().str.contains("PL"))
         & ((df["country"] == "Brasil") | (df["country"].isna()))
     ]
-    df["date"] = pd.to_datetime(df["published_date"]).dt.strftime("%d/%m/%Y")
+    df["date"] = pd.to_datetime(df["published_date"])
     df = df.fillna("...")
     df = df[
         [
@@ -118,6 +118,7 @@ def update_google_sheets_dataset():
         ],
         ascending=[False, True],
     )
+    df["date"] = df["date"].dt.strftime("%d/%m/%Y")
     df["workplace_type"] = df["workplace_type"].apply(lambda x: x.split(".")[1])
     df.columns = [
         "Data",

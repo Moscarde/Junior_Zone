@@ -119,9 +119,9 @@ def process_request(chat_id):
         chat_id=chat_id,
     )
 
-    if tag_data_as_submitted():
-        data_handler.tag_as_submitted()
-        print("TAGED!")
+    # if tag_data_as_submitted():
+    data_handler.tag_as_submitted()
+    print("TAGED!")
 
 
 def send_message(message_content, message_type, chat_id, disable_notification=True):
