@@ -43,6 +43,8 @@ def fast_run(chat_id):
         url = "https://bit.ly/planilhaJuniorZone1"
         webbrowser.open(url)
         input('>> PRESS ENTER TO EXIT')
+        #end app
+        exit()
 
 
 def select_environment():
