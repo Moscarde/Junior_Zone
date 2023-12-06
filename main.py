@@ -5,9 +5,7 @@ from modules.telegram_message import TelegramMessage
 from modules.telegram_bot import TelegramBot
 from dotenv import load_dotenv
 import os, sys
-import webbrowser
-import time
-import subprocess
+
 
 
 load_dotenv()
@@ -28,31 +26,13 @@ def detect_environment():
     else:
         return select_environment()
     
-def fast_run(chat_id):
-    if "--request" in sys.argv:
-        print(">> FAST RUN")
-        request_data()
-        process_request(chat_id)
-        update_sheets_dataset()
-
-        git_command = 'gitpush.bat'
-        subprocess.call([git_command])
-
-        print(">> WAITING 20s FOR THE PROCESS TO FINISH")
-        time.sleep(10)
-        url = "https://bit.ly/planilhaJuniorZone1"
-        webbrowser.open(url)
-        input('>> PRESS ENTER TO EXIT')
-        #end app
-        exit()
-
 
 def select_environment():
     print("NO ENVIRONMENT SELECTED, PLEASE SELECT ONE:")
     groups_id = {1: MAIN_GROUP_CHAT_ID, 2: TEST_GROUP_CHAT_ID}
 
     print("ENVIRONMENTS:\n" "[1] PRODUCTION GROUP\n" "[2] DEVELOPMENT GROUP")
-    option = int(input(">> SELECT ENVIRONMENT:"))
+    option = int(input(">> SELECT ENVIRONMENT: "))
 
     if option in groups_id:
         chat_id = groups_id[option]
@@ -60,7 +40,7 @@ def select_environment():
 
     else:
         print("INVALID OPTION")
-        return main()
+        select_environment()
 
 
 def request_data():
@@ -83,10 +63,9 @@ def request_data():
     ]
     scraper = GupyScraper(filter_labels)
     scraper.request_and_save()
-    # main()
 
 
-def process_request(chat_id):
+def process_and_publish_responses(chat_id):
     data_handler = DataHandler()
     filtered_vacancies_dfs = data_handler.filtered_dfs
 
@@ -121,9 +100,9 @@ def process_request(chat_id):
         chat_id=chat_id,
     )
 
-    # if tag_data_as_submitted():
-    data_handler.tag_as_submitted()
-    print("TAGED!")
+    if tag_data_as_submitted():
+        data_handler.tag_as_submitted()
+        print("TAGED!")
 
 
 def send_message(message_content, message_type, chat_id, disable_notification=True):
@@ -137,19 +116,21 @@ def send_message(message_content, message_type, chat_id, disable_notification=Tr
 
 
 def tag_data_as_submitted():
-    print("\nTAG DATA AS SUBMITTED?\n" "[1] YES\n" "[2] NO")
-    tag = int(input(">> ANSWER:"))
-    if tag == 1:
-        return True
+    if __name__ == "__main__":
+        print("\nTAG DATA AS SUBMITTED?\n" "[1] YES\n" "[2] NO")
+        tag = int(input(">> ANSWER:"))
+        if tag == 1:
+            return True
+        else:
+            return False
     else:
-        return False
+        return True
 
 
 def send_custom_text(chat_id):
     text = input("\n>> ENTER CUSTON TEXT: ")
     converted_message = TelegramMessage.formatter_string(text)
     send_message(converted_message, "text", chat_id)
-    main()
 
 
 def send_image(chat_id):
@@ -167,24 +148,24 @@ def update_sheets_dataset():
         print("UPDATED!")
 
 
-def main():
-    chat_id = detect_environment()
-    fast_run(chat_id)
-
+def main(chat_id):
     options = {
         1: request_data,
-        2: lambda: process_request(chat_id),
+        2: lambda: process_and_publish_responses(chat_id),
         3: lambda: send_custom_text(chat_id),
         4: lambda: send_image(chat_id),
         5: update_sheets_dataset,
+        6: lambda: exit(),
     }
     print(
         "\n"
+        "[--MAIN MENU--]\n"
         "[1] REQUEST DATA\n"
         "[2] PROCESS AND SEND LAST REQUEST\n"
         "[3] SEND CUSTOM TEXT\n"
         "[4] SEND IMAGE\n"
-        "[5] UPDATE SHEETS DATASET"
+        "[5] UPDATE SHEETS DATASET\n"
+        "[6] EXIT"
     )
     option = int(input(">> SELECT FUNCTION: "))
 
@@ -192,6 +173,8 @@ def main():
         options[option]()
     else:
         print("INVALID OPTION")
+
+    main(chat_id)
 
 
 if __name__ == "__main__":
@@ -208,4 +191,5 @@ if __name__ == "__main__":
 '·:...............................................................................:·'
 """
     )
-    main()
+    chat_id = detect_environment()
+    main(chat_id)

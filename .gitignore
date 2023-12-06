@@ -4,4 +4,3 @@ __pycache__
 *.psd
 venv
 staged_labels_responses
-*.bat
