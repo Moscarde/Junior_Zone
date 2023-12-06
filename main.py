@@ -7,14 +7,19 @@ from dotenv import load_dotenv
 import os, sys
 
 
-
 load_dotenv()
 TOKEN = os.environ["TOKEN"]
 MAIN_GROUP_CHAT_ID = os.environ["MAIN_GROUP_CHAT_ID"]
 TEST_GROUP_CHAT_ID = os.environ["TEST_GROUP_CHAT_ID"]
 
 
-def detect_environment():
+def detect_environment() -> int:
+    """
+    Detects the environment based on command line arguments and returns the corresponding group chat ID.
+
+    Returns:
+        int: The group chat ID.
+    """
     if "--dev" in sys.argv:
         print(">> DEVELOPMENT ENVIRONMENT SELECTED")
         return TEST_GROUP_CHAT_ID
@@ -25,9 +30,15 @@ def detect_environment():
 
     else:
         return select_environment()
-    
 
-def select_environment():
+
+def select_environment() -> int:
+    """
+    Prompts the user to select an environment and returns the corresponding chat ID.
+
+    Returns:
+        int: The chat ID of the selected environment.
+    """
     print("NO ENVIRONMENT SELECTED, PLEASE SELECT ONE:")
     groups_id = {1: MAIN_GROUP_CHAT_ID, 2: TEST_GROUP_CHAT_ID}
 
@@ -43,7 +54,10 @@ def select_environment():
         select_environment()
 
 
-def request_data():
+def request_data() -> None:
+    """
+    Requests data from GupyScraper and saves it.
+    """
     filter_labels = [
         "analista",
         "dados",
@@ -65,7 +79,16 @@ def request_data():
     scraper.request_and_save()
 
 
-def process_and_publish_responses(chat_id):
+def process_and_publish_responses(chat_id: int) -> None:
+    """
+    Process and publish responses.
+
+    Args:
+        chat_id (int): The ID of the chat.
+
+    Returns:
+        None
+    """
     data_handler = DataHandler()
     filtered_vacancies_dfs = data_handler.filtered_dfs
 
@@ -105,7 +128,21 @@ def process_and_publish_responses(chat_id):
         print("TAGED!")
 
 
-def send_message(message_content, message_type, chat_id, disable_notification=True):
+def send_message(
+    message_content: (str, bytes),
+    message_type: str,
+    chat_id: int,
+    disable_notification: bool = True,
+) -> None:
+    """
+    Sends a message to a chat on Telegram.
+
+    Args:
+        message_content (str | bytes): The content of the message. It can be either a text message or an image file.
+        message_type (str): The type of the message. It can be either "text" or "image".
+        chat_id (int): The ID of the chat.
+        disable_notification (bool, optional): Whether to disable notification for the message. Defaults to True.
+    """
     junior_bot = TelegramBot(TOKEN)
 
     if message_type == "text":
@@ -115,7 +152,13 @@ def send_message(message_content, message_type, chat_id, disable_notification=Tr
         junior_bot.send_image(chat_id, message_content, disable_notification)
 
 
-def tag_data_as_submitted():
+def tag_data_as_submitted() -> bool:
+    """
+    Prompts the user to tag the data as submitted.
+
+    Returns:
+        bool: True if the data is tagged as submitted, False otherwise.
+    """
     if __name__ == "__main__":
         print("\nTAG DATA AS SUBMITTED?\n" "[1] YES\n" "[2] NO")
         tag = int(input(">> ANSWER:"))
@@ -127,28 +170,54 @@ def tag_data_as_submitted():
         return True
 
 
-def send_custom_text(chat_id):
-    text = input("\n>> ENTER CUSTON TEXT: ")
-    converted_message = TelegramMessage.formatter_string(text)
+def send_custom_text(chat_id: int) -> None:
+    """
+    Prompts the user to enter a custom text and sends it to the specified chat ID.
+
+    Args:
+        chat_id (int): The ID of the chat.
+
+    Returns:
+        None
+    """
+    text: str = input("\n>> ENTER CUSTON TEXT: ")
+    converted_message: str = TelegramMessage.formatter_string(text)
     send_message(converted_message, "text", chat_id)
 
 
-def send_image(chat_id):
-    file_name = input(">> FILE NAME IN PICTURES FOLDER: ")
-    content = open(f"pictures/{file_name}", "rb")
+def send_image(chat_id: int) -> None:
+    """
+    Prompts the user to enter a file name and sends an image to the specified chat ID.
+
+    Args:
+        chat_id (int): The ID of the chat.
+
+    Returns:
+        None
+    """
+    file_name: str  = input(">> FILE NAME IN PICTURES FOLDER: ")
+    content: bytes = open(f"pictures/{file_name}", "rb")
     send_message(content, "image", chat_id)
 
 
-def update_sheets_dataset():
-    try:
-        update_google_sheets_dataset()
-    except Exception as e:
-        print(e)
-    finally:
-        print("UPDATED!")
+def update_sheets_dataset() -> None:
+    """
+    Update the Google Sheets dataset.
+
+    Returns:
+        None
+    """
+    update_google_sheets_dataset()
+    print("UPDATED!")
 
 
-def main(chat_id):
+def main(chat_id: int) -> None:
+    """
+    Main function to handle user input and execute corresponding options.
+    
+    Args:
+        chat_id (int): The ID of the chat.
+    """
     options = {
         1: request_data,
         2: lambda: process_and_publish_responses(chat_id),
@@ -167,7 +236,7 @@ def main(chat_id):
         "[5] UPDATE SHEETS DATASET\n"
         "[6] EXIT"
     )
-    option = int(input(">> SELECT FUNCTION: "))
+    option: int = int(input(">> SELECT FUNCTION: "))
 
     if option in options:
         options[option]()
