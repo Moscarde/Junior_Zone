@@ -132,33 +132,6 @@ def update_google_sheets_dataset():
     df.to_csv(f"data/googlesheets_dataset.csv", index=False)
 
 
-# def text_converter(text):
-#     #'_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
-#     return (
-#         str(text)
-#         .replace(".", "\.")
-#         .replace("(", "\(")
-#         .replace(")", "\)")
-#         .replace("|", "\|")
-#         .replace("-", "\-")
-#         .replace("+", "\+")
-#         .replace("[", "\[")
-#         .replace("]", "\]")
-#         .replace("{", "\{")
-#         .replace("}", "\}")
-#         .replace("!", "\!")
-#         .replace("#", "\#")
-#         .replace("~", "\~")
-#         .replace("`", "\`")
-#         .replace(">", "\>")
-#         .replace("*", "\*")
-#         .replace("=", "\=")
-#         .replace("'", "'")
-#         .replace('"', '"')
-#         .replace("<", "\<")
-#     )
-
-
 if __name__ == "__main__":
     from pprint import pprint
 
