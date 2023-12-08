@@ -62,10 +62,11 @@ class DataHandler:
 
 def apply_exclusion_filters(df, filters, status=False):
     temp_df_list = []
-    for f in filters:
-        temp_df_list.append(df[df["title"].str.upper().str.contains(f.upper())])
 
-    df = pd.concat(temp_df_list, ignore_index=True)
+    print(len(df['title']))
+    for f in filters:
+        df = df[(~df["title"].str.upper().str.contains(f.upper()))]
+    print(len(df['title']))
 
     df = df[
         ((df["country"] == "Brasil") | (df["country"].isna()))
@@ -89,7 +90,6 @@ def update_google_sheets_dataset():
 
     df_list = []
     for filename in responses_datasets_filenames:
-        print(filename)
         df_response = pd.read_csv(f"data/responses/{filename}")
         df_list.append(df_response)
 
