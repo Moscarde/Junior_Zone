@@ -63,10 +63,10 @@ class DataHandler:
 def apply_exclusion_filters(df, filters, status=False):
     temp_df_list = []
 
-    print(len(df['title']))
+    print(len(df["title"]))
     for f in filters:
         df = df[(~df["title"].str.upper().str.contains(f.upper()))]
-    print(len(df['title']))
+    print(len(df["title"]))
 
     df = df[
         ((df["country"] == "Brasil") | (df["country"].isna()))
@@ -96,7 +96,8 @@ def update_google_sheets_dataset():
     df = pd.concat(df_list, ignore_index=True)
 
     df = apply_exclusion_filters(
-        df, ["PLENO", "SÊNIOR", "SENIOR", "SR", "PL", "III", "lll", "ll", "II"],
+        df,
+        ["PLENO", "SÊNIOR", "SENIOR", "SR", "PL", "III", "lll", "ll", "II"],
         status=True,
     )
 
@@ -115,6 +116,17 @@ def update_google_sheets_dataset():
     )
     df["date"] = pd.to_datetime(df["date"]).dt.strftime("%d/%m/%Y")
     df["workplace_type"] = df["workplace_type"].apply(lambda x: x.split(".")[1])
+    df["type"] = df["type"].replace(
+        {
+            "vacancy_type_effective": "Efetiva",
+            "vacancy_type_temporary": "Temporária",
+            "vacancy_type_talent_pool": "Banco de Talentos",
+            "vacancy_legal_entity": "Entidade legal",
+            "vacancy_type_associate": "Associado",
+            "vacancy_type_internship": "Estágio",
+            "vacancy_type_autonomous": "Autônomo",
+        }
+    )
 
     df = df[
         [
@@ -122,6 +134,7 @@ def update_google_sheets_dataset():
             "title",
             "career_page_name",
             "workplace_type",
+            "type",
             "job_url",
             "city",
             "state",
@@ -133,6 +146,7 @@ def update_google_sheets_dataset():
         "Vaga",
         "Nome da Empresa",
         "Tipo de Trabalho",
+        "Tipo de Vaga",
         "URL",
         "Cidade",
         "Estado",
