@@ -25,7 +25,6 @@ def main():
     url = "https://bit.ly/planilhaJuniorZone1"
     webbrowser.open(url)
 
-    input(">> PRESS ENTER TO EXIT")
     exit()
 
 
