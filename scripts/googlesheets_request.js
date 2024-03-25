@@ -1,5 +1,5 @@
 function updateJuniorZoneDataset() {
-    var urlCSV = 'https://raw.githubusercontent.com/Moscarde/Junior_Zone/main/data/googlesheets_dataset.csv';
+    var urlCSV = 'https://raw.githubusercontent.com/Moscarde/Junior_Zone/automation/data/googlesheets_dataset.csv';
     var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = spreadsheet.getSheetByName('raw_data');
   
