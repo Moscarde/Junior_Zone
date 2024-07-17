@@ -2,7 +2,7 @@
 *.ipynb
 __pycache__
 *.psd
-venv
+.venv
 staged_labels_responses
 
 production_run.py
