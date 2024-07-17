@@ -75,6 +75,7 @@ def request_data() -> None:
         "Business Intelligence",
         "Machine Learning",
         "Inteligência Artificial",
+        "Power BI",
     ]
     scraper = GupyScraper(filter_labels)
     scraper.request_and_save()

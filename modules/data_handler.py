@@ -12,7 +12,7 @@ class DataHandler:
     def process_dataset(self, base_dataset):
         df_jr = apply_exclusion_filters(
             base_dataset,
-            ["PLENO", "SÊNIOR", "SENIOR", "SR", "PL", "III", "lll", "ll", "II"],
+            ["PLENO", "SÊNIOR", "SENIOR", "SR", "PL", "III", "lll", "ll", "II", "Especialista"],
         )
 
         df_jr = df_jr.sort_values(by="state")
@@ -27,6 +27,8 @@ class DataHandler:
             "Machine Learning",
             "Inteligência Artificial",
             "Business Intelligence",
+            "Power BI",
+            "Negócio"
         ]
 
         dev_filter = [
