@@ -6,14 +6,14 @@ from dotenv import load_dotenv
 from main import request_data, process_and_publish_responses, update_sheets_dataset
 
 def main():
-    # load_dotenv()
-    # MAIN_GROUP_CHAT_ID = os.environ["MAIN_GROUP_CHAT_ID"]
+    load_dotenv()
+    MAIN_GROUP_CHAT_ID = os.environ["MAIN_GROUP_CHAT_ID"]
 
-    # request_data()
+    request_data()
 
-    # process_and_publish_responses(MAIN_GROUP_CHAT_ID)
+    process_and_publish_responses(MAIN_GROUP_CHAT_ID)
 
-    # update_sheets_dataset()
+    update_sheets_dataset()
     
     subprocess.run(["git", "add", "."], check=True)
     subprocess.run(["git", "commit", "-m", "Daily update"], check=True)
