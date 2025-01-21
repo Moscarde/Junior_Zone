@@ -2,6 +2,8 @@
     <a href="#"><img src="pictures/header.jpg" alt="Logo do projeto Junior Zone" width=100%/></a>
 </p>
 
+⚠️ ** Projeto Descontinuado ** ⚠️
+
 Junior Zone é um projeto para ajudar desenvolvedores e analistas iniciantes a encontrarem com facilidade boas oportunidades de vagas de emprego.
 
 <div align="center">
